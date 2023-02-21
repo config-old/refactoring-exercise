@@ -1,136 +1,93 @@
 import csv
+from dataclasses import dataclass
+from typing import Iterable, Tuple
+
+class Startup(dict):
+  ATTR_LIST = [
+    "permalink", 
+    "company_name",
+    "number_employees",
+    "category",
+    "city",
+    "state",
+    "funded_date",
+    "raised_amount",
+    "raised_currency",
+    "round"
+    ]
+
+  def __init__(self) -> None:
+    self.permalink, self.companyName, self.employeeCount, self.category, self.city, self.state, self.foundedDate, self.raisedAmount, self.raisedCurrency, self.round= ["affe"]*10
+    self._superInit()
+  
+  def _superInit(self):
+    super().__init__([
+      ("permalink", self.permalink),
+      ("company_name", self.companyName),
+      ("number_employees", self.employeeCount),
+      ("category", self.category),
+      ("city", self.city),
+      ("state", self.state),
+      ("funded_date", self.foundedDate),
+      ("raised_amount", self.raisedAmount),
+      ("raised_currency", self.raisedCurrency),
+      ("round", self.round)
+    ])
+
+  @staticmethod
+  def readByCsvRow(row:Iterable):
+    if not (isinstance(row, Iterable) and len(row)>=10):
+      return None
+    out = Startup()
+    out.permalink = row[0]
+    out.companyName = row[1]
+    out.employeeCount = row[2]
+    out.category = row[3]
+    out.city = row[4]
+    out.state = row[5]
+    out.foundedDate = row[6]
+    out.raisedAmount = row[7]
+    out.raisedCurrency = row[8]
+    out.round = row[9]
+    out._superInit()
+    return out
+
 
 class FundingRaised:
-  @staticmethod
-  def where(options = {}):
-    with open("../startup_funding.csv", "rt") as csvfile:
-      data = csv.reader(csvfile, delimiter=',', quotechar='"')
-      # skip header
-      next(data)
-      csv_data = []
-      for row in data:
-        csv_data.append(row)
-
-    funding = []
-    if 'company_name' in options:
-      result = []
-      for row in csv_data:
-        if row[1] == options['company_name']:
-          result.append(row)
-      csv_data = result
-
-    if 'city' in options:
-      result = []
-      for row in csv_data:
-        if row[4] == options['city']:
-          result.append(row)
-      csv_data = result
-
-    if 'state' in options:
-      result = []
-      for row in csv_data:
-        if row[5] == options['state']:
-          result.append(row)
-      csv_data = result
-
-    if 'round' in options:
-      result = []
-      for row in csv_data:
-        if row[9] == options['round']:
-          result.append(row)
-      csv_data = result
-
-    output = []
-    for row in csv_data:
-      mapped = {}
-      mapped['permalink'] = row[0]
-      mapped['company_name'] = row[1]
-      mapped['number_employees'] = row[2]
-      mapped['category'] = row[3]
-      mapped['city'] = row[4]
-      mapped['state'] = row[5]
-      mapped['funded_date'] = row[6]
-      mapped['raised_amount'] = row[7]
-      mapped['raised_currency'] = row[8]
-      mapped['round'] = row[9]
-      output.append(mapped)
-
-    return output
+  def readCsv(func):
+    def _readCsv(*args, **kwargs):
+      with open("../startup_funding.csv", "rt") as csvfile:
+        data = csv.reader(csvfile, delimiter=',', quotechar='"')
+        # skip header
+        next(data)
+        startupList:Iterable[Startup] = []
+        for row in data:
+          ele = Startup.readByCsvRow(row)
+          if ele is not None:
+            startupList.append(ele)
+      result = func(*args, **kwargs, startupList=startupList)
+      return result
+    return _readCsv
 
   @staticmethod
-  def find_by(options):
-    with open("../startup_funding.csv", "rt") as csvfile:
-      data = csv.reader(csvfile, delimiter=',', quotechar='"')
-      # skip header
-      next(data)
-      csv_data = []
-      for row in data:
-        csv_data.append(row)
+  @readCsv
+  def where(options = {}, startupList:Iterable[Startup] = []):
+    options:Iterable[Tuple[str,str]] = list(options.items())
+    result:Iterable[Startup] = []
+    for row in startupList:
+      rowItems = row.items()
+      if all(option in rowItems for option in options):
+        result.append(row)
+    return result
 
-    if 'company_name' in options:
-      for row in csv_data:
-        if row[1] == options['company_name']:
-          mapped = {}
-          mapped['permalink'] = row[0]
-          mapped['company_name'] = row[1]
-          mapped['number_employees'] = row[2]
-          mapped['category'] = row[3]
-          mapped['city'] = row[4]
-          mapped['state'] = row[5]
-          mapped['funded_date'] = row[6]
-          mapped['raised_amount'] = row[7]
-          mapped['raised_currency'] = row[8]
-          mapped['round'] = row[9]
-          return mapped
-
-    if 'city' in options:
-      for row in csv_data:
-        if row[4] == options['city']:
-          mapped = {}
-          mapped['permalink'] = row[0]
-          mapped['company_name'] = row[1]
-          mapped['number_employees'] = row[2]
-          mapped['category'] = row[3]
-          mapped['city'] = row[4]
-          mapped['state'] = row[5]
-          mapped['funded_date'] = row[6]
-          mapped['raised_amount'] = row[7]
-          mapped['raised_currency'] = row[8]
-          mapped['round'] = row[9]
-          return mapped
-
-    if 'state' in options:
-      for row in csv_data:
-        if row[5] == options['state']:
-          mapped = {}
-          mapped['permalink'] = row[0]
-          mapped['company_name'] = row[1]
-          mapped['number_employees'] = row[2]
-          mapped['category'] = row[3]
-          mapped['city'] = row[4]
-          mapped['state'] = row[5]
-          mapped['funded_date'] = row[6]
-          mapped['raised_amount'] = row[7]
-          mapped['raised_currency'] = row[8]
-          mapped['round'] = row[9]
-          return mapped
-
-    if 'round' in options:
-      for row in csv_data:
-        if row[9] == options['round']:
-          mapped = {}
-          mapped['permalink'] = row[0]
-          mapped['company_name'] = row[1]
-          mapped['number_employees'] = row[2]
-          mapped['category'] = row[3]
-          mapped['city'] = row[4]
-          mapped['state'] = row[5]
-          mapped['funded_date'] = row[6]
-          mapped['raised_amount'] = row[7]
-          mapped['raised_currency'] = row[8]
-          mapped['round'] = row[9]
-          return mapped
-
+  @staticmethod
+  @readCsv
+  def find_by(options, startupList:Iterable[Startup]=[]):
+    options:Iterable[Tuple[str,str]] = list(options.items())
+    for row in startupList:
+      rowItems = row.items()
+      if all(option in rowItems for option in options):
+        return row
     raise RecordNotFound
 
 class RecordNotFound(Exception):
