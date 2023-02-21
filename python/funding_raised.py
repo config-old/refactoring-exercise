@@ -3,53 +3,21 @@ from dataclasses import dataclass
 from typing import Iterable, Tuple
 
 class Startup(dict):
-  ATTR_LIST = [
-    "permalink", 
-    "company_name",
-    "number_employees",
-    "category",
-    "city",
-    "state",
-    "funded_date",
-    "raised_amount",
-    "raised_currency",
-    "round"
-    ]
-
-  def __init__(self) -> None:
-    self.permalink, self.companyName, self.employeeCount, self.category, self.city, self.state, self.foundedDate, self.raisedAmount, self.raisedCurrency, self.round= ["affe"]*10
-    self._superInit()
-  
-  def _superInit(self):
-    super().__init__([
-      ("permalink", self.permalink),
-      ("company_name", self.companyName),
-      ("number_employees", self.employeeCount),
-      ("category", self.category),
-      ("city", self.city),
-      ("state", self.state),
-      ("funded_date", self.foundedDate),
-      ("raised_amount", self.raisedAmount),
-      ("raised_currency", self.raisedCurrency),
-      ("round", self.round)
-    ])
 
   @staticmethod
   def readByCsvRow(row:Iterable):
-    if not (isinstance(row, Iterable) and len(row)>=10):
-      return None
+    if not (isinstance(row, Iterable) and len(row)>=10): return None
     out = Startup()
-    out.permalink = row[0]
-    out.companyName = row[1]
-    out.employeeCount = row[2]
-    out.category = row[3]
-    out.city = row[4]
-    out.state = row[5]
-    out.foundedDate = row[6]
-    out.raisedAmount = row[7]
-    out.raisedCurrency = row[8]
-    out.round = row[9]
-    out._superInit()
+    out["permalink"] = row[0]
+    out["company_name"] = row[1]
+    out["number_employees"] = row[2]
+    out["category"] = row[3]
+    out["city"] = row[4]
+    out["state"] = row[5]
+    out["funded_date"] = row[6]
+    out["raised_amount"] = row[7]
+    out["raised_currency"] = row[8]
+    out["round"] = row[9]
     return out
 
 
