@@ -1,5 +1,4 @@
 import csv
-from dataclasses import dataclass
 from typing import Iterable, Tuple
 
 class Startup(dict):
@@ -19,7 +18,6 @@ class Startup(dict):
     out["raised_currency"] = row[8]
     out["round"] = row[9]
     return out
-
 
 class FundingRaised:
   def readCsv(func):
